@@ -1,4 +1,4 @@
-package java_tranning;
+package java_training;
 
 import java.util.Scanner;
 

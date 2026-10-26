@@ -1,4 +1,4 @@
-package java_tranning;
+package java_training;
 
 public class NumberStarPattern {
 	public static void main(String[] args) {
