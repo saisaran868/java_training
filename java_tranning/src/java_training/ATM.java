@@ -37,8 +37,7 @@ public class ATM {
 					balance = balance + amount;
 					System.out.println("Money deposited successfully!");
 					System.out.println("Updated balance: ₹" + balance);
-//                        System.out.println("Thank you for using our ATM!");
-//                        return;
+
 				} else {
 					System.out.println("Invalid amount!");
 				}
@@ -56,8 +55,7 @@ public class ATM {
 					balance = balance - amount;
 					System.out.println("Please collect your cash.");
 					System.out.println("Remaining balance: ₹" + balance);
-//                        System.out.println("Thank you for using our ATM!");
-//                        return;
+
 				}
 			}
 
