@@ -6,7 +6,7 @@ public class Atm {
 
 	public static void main(String[] args) {
 
-		Scanner sc = new Scanner(System.in);
+		Scanner sc = new Scanner(System.in);    
 
 		double balance = 5000;
 		int choice;
