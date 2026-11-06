@@ -15,7 +15,7 @@ public class ProductServices {
 
 	public String addProducts(String ProductName, Category category, double price, int stock) {
 
-		String id = ProductName.substring(0, 3).toUpperCase() + products.size();
+		String id = ProductName.replaceAll("\\s+", "").substring(0, 3).toUpperCase() + products.size();
 
 		products.put(id, new Product(ProductName, category, price, stock));
 		return id;
@@ -54,17 +54,21 @@ public class ProductServices {
 
 		product.sellProdcut();
 	}
-
+    public void deleteProduct(String id) {
+    	 
+    	 products.remove(id);
+    }
 	public void printProducts(String id) {
 		Product product = searchById(id);
 		System.out.println("\n---------------------------------- PRODUCT DETAILS ----------------------------------");
 
-		System.out.printf("%-15s %-25s %-25s %-15s %-15s%n", "Product ID", "Product Name","Category", "Price (Rs.)", "Stock");
+		System.out.printf("%-15s %-25s %-25s %-15s %-15s%n", "Product ID", "Product Name", "Category", "Price (Rs.)",
+				"Stock");
 
 		System.out.println("---------------------------------------------------------------------------------------");
 
-		System.out.printf("%-15s %-25s %-25s %-15.2f %-15d%n", id, product.getProductName(),product.getCategory(), product.getPrice(),
-				product.getStock());
+		System.out.printf("%-15s %-25s %-25s %-15.2f %-15d%n", id, product.getProductName(), product.getCategory(),
+				product.getPrice(), product.getStock());
 
 		System.out.println("---------------------------------------------------------------------------------------");
 
@@ -104,6 +108,46 @@ public class ProductServices {
 
 			if (!found) {
 				System.out.println("No products available in this category.");
+			}
+
+			System.out.println("---------------------------------------------------------------------");
+		}
+	}
+
+	public void printLowStockProducts() {
+
+		System.out.println("\n-------------------- LOW STOCK PRODUCTS --------------------");
+
+		for (Category category : Category.values()) {
+
+			System.out.println("\n========== " + category + " ==========");
+
+			System.out.printf("%-15s %-25s %-15s %-15s%n", "Product ID", "Product Name", "Price (Rs.)", "Stock");
+
+			System.out.println("---------------------------------------------------------------------");
+
+			Iterator<Map.Entry<String, Product>> iterator = products.entrySet().iterator();
+
+			boolean found = false;
+
+			while (iterator.hasNext()) {
+
+				Map.Entry<String, Product> entry = iterator.next();
+
+				String id = entry.getKey();
+				Product product = entry.getValue();
+
+				if (product.getCategory() == category && product.getStock() < 5) {
+
+					found = true;
+
+					System.out.printf("%-15s %-25s %-15.2f %-15d%n", id, product.getProductName(), product.getPrice(),
+							product.getStock());
+				}
+			}
+
+			if (!found) {
+				System.out.println("No low-stock products in this category.");
 			}
 
 			System.out.println("---------------------------------------------------------------------");

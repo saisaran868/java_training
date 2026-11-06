@@ -22,9 +22,13 @@ public class Main {
 				System.out.println("1. Add Product");
 				System.out.println("2. Search product by ID");
 				System.out.println("3. Update product price");
-				System.out.println("4. Add Stock");
-				System.out.println("5. Sell Products");
-				System.out.println("3. Exit");
+				System.out.println("4. Add stock");
+				System.out.println("5. Sell products");
+				System.out.println("6. Show all products");
+				System.out.println("7. Display products with stock below 5");
+				System.out.println();
+				System.out.println("9. Delete a product");
+				System.out.println("10. Exit");
 
 				System.out.print("Enter your choice: ");
 
@@ -36,6 +40,13 @@ public class Main {
 				case "3" -> updateProdcutPrice(sc, productServices);
 				case "4" -> addStock(sc, productServices);
 				case "5" -> sellProdcut(sc, productServices);
+				case "6" -> showAllProducts(productServices);
+				case "7" -> showLowStockProducts(productServices);
+				case "9" ->deleteProduct(sc,productServices);
+				case "10" ->{
+					System.out.println("!!Thank You!!");
+					return;
+				}
 
 				default -> System.out.println("Invalid choice!!!!!");
 				}
@@ -66,22 +77,22 @@ public class Main {
 					System.out.println("4. Home appliances");
 					System.out.print("Enter the Category no:");
 
-					int choice = sc.nextInt();
+					String choice = sc.nextLine();
 
 					switch (choice) {
-					case 1 -> {
+					case "1" -> {
 						c = inventorySystem.enums.Category.LAPTOP;
 						break;
 					}
-					case 2 -> {
+					case "2" -> {
 						c = inventorySystem.enums.Category.MOBILE;
 						break;
 					}
-					case 3 -> {
+					case "3" -> {
 						c = inventorySystem.enums.Category.ACCESSORY;
 						break;
 					}
-					case 4 -> {
+					case "4" -> {
 						c = inventorySystem.enums.Category.HOME_APPLIANCE;
 						break;
 					}
@@ -123,7 +134,7 @@ public class Main {
 			try {
 				System.out.println("----Search Product By ID----");
 				System.out.print("Enter the product ID: ");
-				String id = sc.nextLine();
+				String id = sc.nextLine().toUpperCase();
 				productServices.printProducts(id);
 				return;
 			} catch (IllegalArgumentException e) {
@@ -148,7 +159,7 @@ public class Main {
 				System.out.println("-----Update product price-----");
 				System.out.println();
 				System.out.print("Enter product id: ");
-				String productId = sc.nextLine();
+				String productId = sc.nextLine().toUpperCase();
 				productServices.searchById(productId);
 				System.out.print("Enter updated price: ");
 				double price = sc.nextDouble();
@@ -180,7 +191,7 @@ public class Main {
 				System.out.println("-----Add Stock-----");
 				System.out.println();
 				System.out.print("Enter product id: ");
-				String productId = sc.nextLine();
+				String productId = sc.nextLine().toUpperCase();
 				productServices.searchById(productId);
 				System.out.print("Enter Quantity: ");
 				int quantity = sc.nextInt();
@@ -211,7 +222,7 @@ public class Main {
 				System.out.println("-----Sell Product-----");
 				System.out.println();
 				System.out.print("Enter product id: ");
-				String productId = sc.nextLine();
+				String productId = sc.nextLine().toUpperCase();
 				productServices.searchById(productId);
 				productServices.sellProducts(productId);
 				System.out.println("Product sold successfully");
@@ -221,19 +232,57 @@ public class Main {
 
 				return;
 			} catch (IllegalArgumentException e) {
-				System.out.println("\nError1: " + e.getMessage());
+				System.out.println("\nError: " + e.getMessage());
 
 				System.out.println("Please enter product details again.");
 			} catch (StockOutOfBoundException e) {
-				System.out.println("\nError2: " + e.getMessage());
+				System.out.println("\nError: " + e.getMessage());
 				return;
 			} catch (NoSuchElementException e) {
-				System.out.println("\nError3: " + e.getMessage());
+				System.out.println("\nError: " + e.getMessage());
 
 				System.out.println("Please enter product details again.");
 			}
 		}
 
+	}
+	
+	public static void showAllProducts(ProductServices productServices) {
+		try {
+			productServices.printProducts();
+			return;
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+	                   
+		}
+		
+	}
+	public static void showLowStockProducts(ProductServices productServices) {
+		try {
+			productServices.printLowStockProducts();
+			return;
+		}catch(IllegalArgumentException e){
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	public static void deleteProduct(Scanner sc,ProductServices productServices) {
+		try {
+			System.out.println("----Delete Product----");
+			System.out.println();
+			System.out.println("Enter product id: ");
+			String productId =  sc.nextLine().toUpperCase();
+			productServices.searchById(productId);
+			productServices.deleteProduct(productId);
+			System.out.println("Product deleted successfully");
+			return;
+		}catch(IllegalArgumentException e) {
+			System.out.println(e.getMessage());
+		}catch(NoSuchElementException e) {
+			System.out.println("\nError: " + e.getMessage());
+
+			System.out.println("Please enter product details again.");
+		}
 	}
 
 }
