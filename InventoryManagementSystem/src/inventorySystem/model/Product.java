@@ -92,7 +92,7 @@ public class Product {
         this.stock += stock;
     }
 
-    // Updated selling method
+
     public void sellProduct(int quantity) {
 
         if (quantity <= 0) {
