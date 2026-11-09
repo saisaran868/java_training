@@ -6,175 +6,224 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import inventorySystem.enums.Category;
-import inventorySystem.exception.StockOutOfBoundException;
 import inventorySystem.model.Product;
 
 public class ProductServices {
 
-	private Map<String, Product> products = new HashMap<>();
+    private Map<String, Product> products = new HashMap<>();
 
-	public String addProducts(String ProductName, Category category, double price, int stock) {
+    public String addProducts(String productName,
+                              Category category,
+                              double price,
+                              int stock) {
 
-		String id = ProductName.replaceAll("\\s+", "").substring(0, 3).toUpperCase() + products.size();
+        String cleanName = productName.replaceAll("\\s+", "");
 
-		products.put(id, new Product(ProductName, category, price, stock));
-		return id;
-	}
+        if (cleanName.length() < 3) {
+            throw new IllegalArgumentException(
+                "Product name must contain at least 3 characters.");
+        }
 
-	public Product searchById(String id) {
+        String id = cleanName.substring(0, 3).toUpperCase()
+                     + products.size();
 
-		Product product = products.get(id);
+        while (products.containsKey(id)) {
+            id = cleanName.substring(0, 3).toUpperCase()
+                 + (Integer.parseInt(id.substring(3)) + 1);
+        }
 
-		if (product == null) {
-			throw new NoSuchElementException("Product with the ID " + id + " doesn't exist");
-		}
-		return product;
-	}
+        products.put(id,
+            new Product(productName, category, price, stock));
 
-	public void updateProductPrice(double newPrice, String id) {
-		Product product = searchById(id);
-
-		product.updatePrice(newPrice);
-
-	}
-
-	public void updateProductStock(int newStock, String id) {
-		Product product = searchById(id);
-
-		product.addStock(newStock);
-
-	}
-
-	public void sellProducts(String id) throws StockOutOfBoundException {
-		Product product = searchById(id);
-
-		if (product.getStock() == 0) {
-			throw new StockOutOfBoundException("Out of stock");
-		}
-
-		product.sellProdcut();
-	}
-    public void deleteProduct(String id) {
-    	 
-    	 products.remove(id);
+        return id;
     }
-	public void printProducts(String id) {
-		Product product = searchById(id);
-		System.out.println("\n---------------------------------- PRODUCT DETAILS ----------------------------------");
 
-		System.out.printf("%-15s %-25s %-25s %-15s %-15s%n", "Product ID", "Product Name", "Category", "Price (Rs.)",
-				"Stock");
+    public Product searchById(String id) {
 
-		System.out.println("---------------------------------------------------------------------------------------");
+        Product product = products.get(id);
 
-		System.out.printf("%-15s %-25s %-25s %-15.2f %-15d%n", id, product.getProductName(), product.getCategory(),
-				product.getPrice(), product.getStock());
+        if (product == null) {
+            throw new NoSuchElementException(
+                "Product with ID " + id + " doesn't exist.");
+        }
 
-		System.out.println("---------------------------------------------------------------------------------------");
+        return product;
+    }
 
-	}
+    public void updateProductPrice(double newPrice, String id) {
 
-	public void printProducts() {
+        Product product = searchById(id);
 
-		System.out.println("\n-------------------- INVENTORY DETAILS --------------------");
+        product.updatePrice(newPrice);
+    }
 
-		for (Category category : Category.values()) {
+    public void updateProductStock(int newStock, String id) {
 
-			System.out.println("\n========== " + category + " ==========");
+        Product product = searchById(id);
 
-			System.out.printf("%-15s %-25s %-15s %-15s%n", "Product ID", "Product Name", "Price (Rs.)", "Stock");
+        product.addStock(newStock);
+    }
 
-			System.out.println("---------------------------------------------------------------------");
+    // Updated quantity-based selling
+    public void sellProducts(String id, int quantity) {
 
-			Iterator<Map.Entry<String, Product>> iterator = products.entrySet().iterator();
+        Product product = searchById(id);
 
-			boolean found = false;
+        product.sellProduct(quantity);
+    }
 
-			while (iterator.hasNext()) {
+    public void deleteProduct(String id) {
 
-				Map.Entry<String, Product> entry = iterator.next();
+        Product removedProduct = products.remove(id);
 
-				String id = entry.getKey();
-				Product product = entry.getValue();
+        if (removedProduct == null) {
+            throw new NoSuchElementException(
+                "Product with ID " + id + " doesn't exist.");
+        }
+    }
 
-				if (product.getCategory() == category) {
+    public void printProducts(String id) {
 
-					found = true;
+        Product product = searchById(id);
 
-					System.out.printf("%-15s %-25s %-15.2f %-15d%n", id, product.getProductName(), product.getPrice(),
-							product.getStock());
-				}
-			}
+        System.out.println(
+            "\n---------------- PRODUCT DETAILS ----------------");
 
-			if (!found) {
-				System.out.println("No products available in this category.");
-			}
+        System.out.printf("%-15s %-25s %-25s %-15s %-15s%n",
+            "Product ID", "Product Name", "Category",
+            "Price (Rs.)", "Stock");
 
-			System.out.println("---------------------------------------------------------------------");
-		}
-	}
+        System.out.println(
+            "--------------------------------------------------------------------------");
 
-	public void printLowStockProducts() {
+        System.out.printf("%-15s %-25s %-25s %-15.2f %-15d%n",
+            id,
+            product.getProductName(),
+            product.getCategory(),
+            product.getPrice(),
+            product.getStock());
 
-		System.out.println("\n-------------------- LOW STOCK PRODUCTS --------------------");
+        System.out.println(
+            "--------------------------------------------------------------------------");
+    }
 
-		for (Category category : Category.values()) {
+    public void printProducts() {
 
-			System.out.println("\n========== " + category + " ==========");
+        System.out.println("\n---------------- INVENTORY DETAILS ----------------");
 
-			System.out.printf("%-15s %-25s %-15s %-15s%n", "Product ID", "Product Name", "Price (Rs.)", "Stock");
+        for (Category category : Category.values()) {
 
-			System.out.println("---------------------------------------------------------------------");
+            System.out.println("\n========== " + category + " ==========");
 
-			Iterator<Map.Entry<String, Product>> iterator = products.entrySet().iterator();
+            System.out.printf("%-15s %-25s %-15s %-15s%n",
+                "Product ID", "Product Name", "Price (Rs.)", "Stock");
 
-			boolean found = false;
+            System.out.println(
+                "---------------------------------------------------------------------");
 
-			while (iterator.hasNext()) {
+            Iterator<Map.Entry<String, Product>> iterator =
+                products.entrySet().iterator();
 
-				Map.Entry<String, Product> entry = iterator.next();
+            boolean found = false;
 
-				String id = entry.getKey();
-				Product product = entry.getValue();
+            while (iterator.hasNext()) {
 
-				if (product.getCategory() == category && product.getStock() < 5) {
+                Map.Entry<String, Product> entry = iterator.next();
 
-					found = true;
+                String id = entry.getKey();
+                Product product = entry.getValue();
 
-					System.out.printf("%-15s %-25s %-15.2f %-15d%n", id, product.getProductName(), product.getPrice(),
-							product.getStock());
-				}
-			}
+                if (product.getCategory() == category) {
 
-			if (!found) {
-				System.out.println("No low-stock products in this category.");
-			}
+                    found = true;
 
-			System.out.println("---------------------------------------------------------------------");
-		}
-	}
+                    System.out.printf("%-15s %-25s %-15.2f %-15d%n",
+                        id,
+                        product.getProductName(),
+                        product.getPrice(),
+                        product.getStock());
+                }
+            }
 
-	public void defaultInventory() {
-		// -------- LAPTOPS --------
-		addProducts("HP Pavilion 15", Category.LAPTOP, 55000, 4);
-		addProducts("Lenovo IdeaPad Slim 3", Category.LAPTOP, 48000, 6);
-		addProducts("ASUS VivoBook 15", Category.LAPTOP, 45000, 3);
+            if (!found) {
+                System.out.println(
+                    "No products available in this category.");
+            }
 
-		// -------- MOBILES --------
-		addProducts("Samsung Galaxy S24", Category.MOBILE, 65000, 5);
-		addProducts("Apple iPhone 15", Category.MOBILE, 60000, 2);
-		addProducts("OnePlus Nord CE 4", Category.MOBILE, 25000, 8);
+            System.out.println(
+                "---------------------------------------------------------------------");
+        }
+    }
 
-		// -------- ACCESSORIES --------
-		addProducts("Logitech Wireless Mouse", Category.ACCESSORY, 799, 15);
-		addProducts("HP Wired Keyboard", Category.ACCESSORY, 599, 10);
-		addProducts("boAt Rockerz Headphones", Category.ACCESSORY, 1499, 7);
+    public void printLowStockProducts() {
 
-		// -------- HOME APPLIANCES --------
-		addProducts("LG Refrigerator", Category.HOME_APPLIANCE, 28000, 3);
-		addProducts("Samsung Washing Machine", Category.HOME_APPLIANCE, 22000, 4);
-		addProducts("Philips Air Fryer", Category.HOME_APPLIANCE, 8000, 6);
+        System.out.println("\n---------------- LOW STOCK PRODUCTS ----------------");
 
-	}
+        for (Category category : Category.values()) {
 
+            System.out.println("\n========== " + category + " ==========");
+
+            System.out.printf("%-15s %-25s %-15s %-15s%n",
+                "Product ID", "Product Name", "Price (Rs.)", "Stock");
+
+            System.out.println(
+                "---------------------------------------------------------------------");
+
+            Iterator<Map.Entry<String, Product>> iterator =
+                products.entrySet().iterator();
+
+            boolean found = false;
+
+            while (iterator.hasNext()) {
+
+                Map.Entry<String, Product> entry = iterator.next();
+
+                String id = entry.getKey();
+                Product product = entry.getValue();
+
+                if (product.getCategory() == category
+                        && product.getStock() < 5) {
+
+                    found = true;
+
+                    System.out.printf("%-15s %-25s %-15.2f %-15d%n",
+                        id,
+                        product.getProductName(),
+                        product.getPrice(),
+                        product.getStock());
+                }
+            }
+
+            if (!found) {
+                System.out.println(
+                    "No low-stock products in this category.");
+            }
+
+            System.out.println(
+                "---------------------------------------------------------------------");
+        }
+    }
+
+    public void defaultInventory() {
+
+        // LAPTOPS
+        addProducts("HP Pavilion 15", Category.LAPTOP, 55000, 4);
+        addProducts("Lenovo IdeaPad Slim 3", Category.LAPTOP, 48000, 6);
+        addProducts("ASUS VivoBook 15", Category.LAPTOP, 45000, 3);
+
+        // MOBILES
+        addProducts("Samsung Galaxy S24", Category.MOBILE, 65000, 5);
+        addProducts("Apple iPhone 15", Category.MOBILE, 60000, 2);
+        addProducts("OnePlus Nord CE 4", Category.MOBILE, 25000, 8);
+
+        // ACCESSORIES
+        addProducts("Logitech Wireless Mouse", Category.ACCESSORY, 799, 15);
+        addProducts("HP Wired Keyboard", Category.ACCESSORY, 599, 10);
+        addProducts("boAt Rockerz Headphones", Category.ACCESSORY, 1499, 7);
+
+        // HOME APPLIANCES
+        addProducts("LG Refrigerator", Category.HOME_APPLIANCE, 28000, 3);
+        addProducts("Samsung Washing Machine", Category.HOME_APPLIANCE, 22000, 4);
+        addProducts("Philips Air Fryer", Category.HOME_APPLIANCE, 8000, 6);
+    }
 }
